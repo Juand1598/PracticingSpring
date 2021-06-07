@@ -2,6 +2,8 @@ package com.juand.proyectoSpring.services;
 
 import com.juand.proyectoSpring.dao.UserDao;
 import com.juand.proyectoSpring.models.User;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -26,8 +28,10 @@ public class UserService {
         return userDao.get(id);
     }
 
-    public User register(User user){
-        return userDao.register(user);
+    public void register(User user){
+        String hash= this.generarHash(user.getPassword());
+        user.setPassword(hash);
+        userDao.register(user);
     }
 
     public User update(User user){
@@ -36,5 +40,14 @@ public class UserService {
 
     public void delete(long id){
         userDao.delete(id);
+    }
+
+    private String generarHash(String password) {
+        Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+        return argon2.hash(1, 1024 * 1, 1, password);
+    }
+
+    public User login(User user) {
+        return userDao.login(user);
     }
 }

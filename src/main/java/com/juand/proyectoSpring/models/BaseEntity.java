@@ -11,10 +11,10 @@ public class BaseEntity {
     @Column(name="id", updatable = false, nullable = false)
     private long id;
 
-    @Column(columnDefinition = "DATETIME", updatable = false, nullable = false)
+    @Column(name= "created_Date",columnDefinition = "DATETIME", updatable = false, nullable = false)
     protected Date createdDate;
 
-    @Column(columnDefinition = "DATETIME", updatable = false, nullable = false)
+    @Column(name= "updated_Date",columnDefinition = "DATETIME", updatable = false, nullable = false)
     protected Date updatedDate;
 
     @PrePersist

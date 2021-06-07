@@ -2,8 +2,11 @@ package com.juand.proyectoSpring.dao.imp;
 
 import com.juand.proyectoSpring.dao.UserDao;
 import com.juand.proyectoSpring.models.User;
+import de.mkammerer.argon2.Argon2;
+import de.mkammerer.argon2.Argon2Factory;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import javax.persistence.Entity;
 import javax.persistence.EntityManager;
@@ -51,4 +54,25 @@ public class UserDaoImp implements UserDao {
         entityManager.remove(user);
     }
 
+    @Override
+    public User login(User dto) {
+        boolean isAuthenticated = false;
+
+        String hql = "FROM User as u WHERE u.password is not null and u.email = :email";
+
+        List<User> result = entityManager.createQuery(hql.toString()).setParameter("email", dto.getEmail()).getResultList();
+        if (result.size() == 0) { return null; }
+
+        User user = result.get(0);
+        isAuthenticated = true;
+
+        if (!StringUtils.isEmpty(dto.getPassword())) {
+            Argon2 argon2 = Argon2Factory.create(Argon2Factory.Argon2Types.ARGON2id);
+            isAuthenticated = argon2.verify(user.getPassword(), dto.getPassword());
+        }
+        if (isAuthenticated) {
+            return user;
+        }
+        return null;
+    }
 }
